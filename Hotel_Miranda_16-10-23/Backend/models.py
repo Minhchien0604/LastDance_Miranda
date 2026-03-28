@@ -43,6 +43,7 @@ class Phong (db.Model):
     DonGia = db.Column (db.Float, nullable = False)
     SucChua = db.Column (db.Integer)
     MoTa = db.Column (db.Text)
+    HinhAnh = db.Column (db.String (255)) 
 
     chi_tiet_phong = db.relationship('HoaDon_Phong', backref = 'phong', lazy = True)
 
@@ -84,3 +85,9 @@ class HoaDon_DichVu(db.Model):
     MaDichVu = db.Column(db.Integer, db.ForeignKey('DichVu.MaDichVu'), primary_key=True)
     SoLuong = db.Column(db.Integer, nullable=False, default=1)
 
+class ThucDon (db.Model):
+    __tablename__ = 'ThucDon'
+    MaMon = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TenMon = db.Column(db.String(100), nullable=False)
+    MoTa = db.Column(db.Text)
+    HinhAnh = db.Column(db.String(255))
