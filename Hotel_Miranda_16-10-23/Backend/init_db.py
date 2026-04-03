@@ -1,5 +1,5 @@
 from app import app
-from models import db, Phong, ThucDon
+from models import db, Phong, ThucDon, TinTuc  
 
 with app.app_context():
     db.drop_all()
@@ -58,9 +58,32 @@ with app.app_context():
         HinhAnh="assets/menu-6.jpg"
     )
 
+    tin1 = TinTuc(
+        TieuDe="Exploring Local Culinary Gems: A Foodie's Guide.",
+        NoiDung="Join Emily as she takes you on a gastronomic adventure through the neighborhood surrounding our hotel.",
+        NgayDang="25th March 2022",
+        TacGia="By Emily",
+        HinhAnh="assets/news-1.jpg"
+    )
+    tin2 = TinTuc(
+        TieuDe="Balancing Mind, Body, and Soul at Our Hotel.",
+        NoiDung="Discover holistic spa treatments, fitness facilities, and mindfulness practices that will leave you feeling refreshed.",
+        NgayDang="15th June 2022",
+        TacGia="By David",
+        HinhAnh="assets/news-2.jpg"
+    )
+    tin3 = TinTuc(
+        TieuDe="Exploring Outdoor Activities Near Our Hotel.",
+        NoiDung="From hiking and biking trails to water sports and wildlife encounters, she highlights ways to experience nature's wonders.",
+        NgayDang="08th August 2022",
+        TacGia="By Sarah",
+        HinhAnh="assets/news-3.jpg"
+    )
+
+    db.session.add_all([tin1, tin2, tin3])
     db.session.add_all([mon1, mon2, mon3, mon4, mon5, mon6])
     db.session.add(phong1)
     db.session.add(phong2)
     db.session.add(phong3)
     db.session.commit()
-    print("Đã cập nhật dữ liệu Phòng và Thực đơn thành công!")
+    print("Đã cập nhật dữ liệu Phòng, Thực đơn và Tin tức thành công!")

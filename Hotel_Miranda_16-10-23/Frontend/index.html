@@ -8,6 +8,8 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
     <title>Web Design Mastery | Miranda</title>
   </head>
   <body>
@@ -29,6 +31,7 @@
           <li><a href="#feature">Feature</a></li>
           <li><a href="#menu">Menu</a></li>
           <li><a href="#news">News</a></li>
+          <li><a href="Login/index.html" class="login-btn">Login</a></li>
         </ul>
       </div>
     </nav>
@@ -43,20 +46,23 @@
 
     <section class="booking">
       <div class="section__container booking__container">
-        <form action="/">
+        <form id="search-form">
           <div class="input__group">
-            <label for="arrival">Arrival Date</label>
-            <input type="text" placeholder="Your Arrival Date" />
+            <label for="check_in">Arrival Date</label>
+            <input type="date" id="check_in" required />
           </div>
+          
           <div class="input__group">
-            <label for="departure">Departure Date</label>
-            <input type="text" placeholder="Your Departure Date" />
+            <label for="check_out">Departure Date</label>
+            <input type="date" id="check_out" required />
           </div>
+          
           <div class="input__group">
             <label for="guests">Guests</label>
-            <input type="text" placeholder="No Of Guests" />
+            <input type="number" id="guests" min="1" max="10" value="2" required />
           </div>
-          <button class="btn">Check Availability</button>
+          
+          <button type="submit" class="btn">Check Availability</button>
         </form>
       </div>
     </section>
@@ -92,7 +98,7 @@
             offer an unparalleled escape from the ordinary, inviting you to
             explore a subterranean world of wonders.
           </p>
-          <button class="btn">Book Now</button>
+          <button class="btn" onclick="window.location.href='Booking/index.html'">Book Now</button>
         </div>
       </div>
     </section>
@@ -115,7 +121,7 @@
             unforgettable stay, where the depths of comfort and excitement await
             your arrival.
           </p>
-          <button class="btn">Book Now</button>
+          <button class="btn" onclick="window.location.href='Booking/index.html'">Book Now</button>
         </div>
         <div class="intro__video">
           <video src="assets/luxury.mp4" autoplay muted loop></video>
@@ -233,44 +239,15 @@
           <span><i class="ri-arrow-right-line"></i></span>
         </div>
       </div>
-      <div class="news__grid">
-        <div class="news__card">
-          <img src="assets/news-1.jpg" alt="news" />
-          <div class="news__card__title">
-            <p>25th March 2022</p>
-            <p>By Emily</p>
-          </div>
-          <h4>Exploring Local Culinary Gems: A Foodie's Guide.</h4>
-          <p>
-            Join Emily as she takes you on a gastronomic adventure through the
-            neighborhood surrounding our hotel.
-          </p>
-        </div>
-        <div class="news__card">
-          <img src="assets/news-2.jpg" alt="news" />
-          <div class="news__card__title">
-            <p>15th June 2022</p>
-            <p>By David</p>
-          </div>
-          <h4>Balancing Mind, Body, and Soul at Our Hotel.</h4>
-          <p>
-            Discover holistic spa treatments, fitness facilities, and
-            mindfulness practices that will leave you feeling refreshed.
-          </p>
-        </div>
-        <div class="news__card">
-          <img src="assets/news-3.jpg" alt="news" />
-          <div class="news__card__title">
-            <p>08th August 2022</p>
-            <p>By Sarah</p>
-          </div>
-          <h4>Exploring Outdoor Activities Near Our Hotel.</h4>
-          <p>
-            From hiking and biking trails to water sports and wildlife
-            encounters, she highlights ways to experience nature's wonders.
-          </p>
-        </div>
+      <div class="news__grid", id="news-grid">       
       </div>
+    </section>
+
+    <section class="section__container" id="location">
+      <h2 class="section__header">Location</h2>
+      <p class="section__subheader" style="margin-bottom: 2rem;">Find our hotel easily on the map below.</p>
+      
+      <div id="map" style="width: 100%; height: 500px; border-radius: 5px; box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);"></div>
     </section>
 
     <footer class="footer">
@@ -342,6 +319,10 @@
         Copyright © 2023 Web Design Mastery. All rights reserved.
       </div>
     </footer>
+
+    <button id="backToTopBtn" title="Lên đầu trang">
+        <i class="ri-arrow-up-line"></i>
+    </button>
 
     <script src="https://unpkg.com/scrollreveal"></script>
     <script src="main.js"></script>

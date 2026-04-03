@@ -11,6 +11,7 @@ class KhachHang(db.Model):
     SdtKH = db.Column (db.String(15), nullable = False)
     CCCD_Passport = db.Column (db.String(20), nullable = False)
     Email = db.Column (db.String(50), unique = True)
+    MatKhau = db.Column(db.String(255))
     hoadons = db.relationship('HoaDon', backref='khachhang', lazy=True)
 
 #Bảng nhân viên
@@ -29,7 +30,7 @@ class NhanVien (db.Model):
     TrangThaiNV = db.Column (db.Enum(TrangThaiEnum), default=TrangThaiEnum.DANG_LAM)
     SdtNv = db.Column (db.String (15))
     Luong = db.Column (db.Float)
-
+    MatKhau = db.Column(db.String(255))
     #Mối quan hệ 1 - nhiều với bảng HoaDon
     hoadons = db.relationship('HoaDon', backref='nhanvien', lazy=True) 
 
@@ -52,13 +53,12 @@ class DichVu (db.Model):
     MaDichVu = db.Column (db.Integer, primary_key=True, autoincrement=True)
     TenDichVu = db.Column (db.String (100), nullable=False)
     DonGia = db.Column (db.Float, nullable = False)
-
     chi_tiet_dichvu = db.relationship('HoaDon_DichVu', backref = 'dichvu', lazy = True)
 
 class HoaDon (db.Model):
     __tablename__ = 'HoaDon'
     MaHoaDon = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MaNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV'), nullable=False)
+    MaNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV'), nullable=True)
     MaKhachHang = db.Column(db.Integer, db.ForeignKey('KhachHang.MaKhachHang'), nullable=False)
     Ngay = db.Column(db.DateTime, default=datetime.utcnow)
     DenBu = db.Column(db.Float, default=0.0)
@@ -90,4 +90,13 @@ class ThucDon (db.Model):
     MaMon = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenMon = db.Column(db.String(100), nullable=False)
     MoTa = db.Column(db.Text)
+    HinhAnh = db.Column(db.String(255))
+
+class TinTuc(db.Model):
+    __tablename__ = 'TinTuc'
+    MaTinTuc = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TieuDe = db.Column(db.String(200), nullable=False)
+    NoiDung = db.Column(db.Text)
+    NgayDang = db.Column(db.String(50))
+    TacGia = db.Column(db.String(50))
     HinhAnh = db.Column(db.String(255))

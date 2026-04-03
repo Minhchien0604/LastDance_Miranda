@@ -1,0 +1,15 @@
+# Bỏ qua môi trường ảo Python
+venv/
+env/
+
+# Bỏ qua các file cache của Python
+__pycache__/
+*.pyc
+
+# Bỏ qua Database cục bộ
+instance/
+*.db
+*.sqlite3
+
+# Bỏ qua các file cấu hình hệ điều hành
+.DS_Store
