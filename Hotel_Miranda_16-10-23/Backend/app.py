@@ -146,6 +146,12 @@ def create_booking():
         ngayden = datetime.strptime(data['check_in'], '%Y-%m-%d').date()
         ngaydi = datetime.strptime(data['check_out'], '%Y-%m-%d').date()
 
+        so_dem = (ngaydi - ngayden).days
+        if so_dem <= 0:
+            so_dem = 1 # Tránh lỗi đặt cùng ngày
+        tong_tien = phong_chon.DonGia * so_dem
+        hoa_don_moi.GiaHoaDon = tong_tien
+        
         chi_tiet_phong = HoaDon_Phong(
             MaHoaDon = hoa_don_moi.MaHoaDon,
             MaPhong = phong_chon.MaPhong,

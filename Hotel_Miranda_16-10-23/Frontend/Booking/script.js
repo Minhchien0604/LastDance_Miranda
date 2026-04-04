@@ -9,19 +9,16 @@ let numberOfNights = 1;
 // ================= 1. KHỞI TẠO NGÀY THÁNG =================
 function initDates() {
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // Lấy ngày hôm nay theo múi giờ địa phương
+
     const today = new Date();
     const localToday = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
-    // Nhận ngày từ URL, nếu không có thì mặc định là hôm nay
     checkInDate = urlParams.get('check_in') || localToday;
-    
-    // Mặc định ngày đi là ngày mai
+
     let tmr = new Date(checkInDate);
     tmr.setDate(tmr.getDate() + 1);
     let nextDay = new Date(tmr.getTime() - (tmr.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-    
+
     checkOutDate = urlParams.get('check_out') || nextDay;
 
     // Hiển thị ngày tháng lên thanh tìm kiếm
@@ -43,13 +40,13 @@ async function fetchAndRenderRooms() {
         const response = await fetch('http://127.0.0.1:5000/api/phong-trong');
         const rooms = await response.json();
         const roomsContainer = document.getElementById('roomsContainer');
-        roomsContainer.innerHTML = ''; 
+        roomsContainer.innerHTML = '';
 
         if (rooms.length === 0) {
             roomsContainer.innerHTML = '<p style="color:red; font-weight:bold;">Xin lỗi, hiện không còn phòng trống cho thời gian này.</p>';
             return;
         }
-        
+
         rooms.forEach(room => {
             const roomCard = document.createElement('div');
             roomCard.className = 'room-card';
@@ -89,9 +86,9 @@ function selectRoom(title, price, type) {
     selectedRoom = title;
     selectedPrice = price;
     selectedRoomType = type;
-    
+
     updateBookingSummary();
-    
+
     if (window.innerWidth < 1024) {
         document.getElementById('bookingFormCard').scrollIntoView({ behavior: 'smooth' });
     }
@@ -100,7 +97,7 @@ function selectRoom(title, price, type) {
 function updateBookingSummary() {
     const roomSummary = document.getElementById('roomSummary');
     const submitBtn = document.getElementById('submitBtn');
-    
+
     if (selectedRoom && selectedPrice) {
         const totalPrice = selectedPrice * numberOfNights;
         roomSummary.innerHTML = `
@@ -130,29 +127,34 @@ function updateBookingSummary() {
     }
 }
 
-// ================= 4. GỬI ĐƠN ĐẶT PHÒNG =================
-// ================= 4. GỬI ĐƠN ĐẶT PHÒNG (Đã diệt tận gốc lỗi reload) =================
-window.thucHienDatPhong = async function() {
-    if (!selectedRoom || !selectedPrice) return;
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    
-    // Tự kiểm tra xem khách đã nhập đủ chưa (vì không dùng thẻ Form nữa)
-    if (!fullName || !email || !phone) {
-        alert("Vui lòng điền đầy đủ Tên, Email và Số điện thoại!");
+
+// ================= 4. GỬI ĐƠN ĐẶT PHÒNG  =================
+window.thucHienDatPhong = async function () {
+    console.log("--- Executing Booking (Direct Success Version) ---");
+
+    // 1. Kiểm tra đầu vào
+    if (!selectedRoom || !selectedPrice) {
+        alert("Please select a room first!");
         return;
     }
 
+    const nameVal = document.getElementById('fullName').value;
+    const emailVal = document.getElementById('email').value;
+    const phoneVal = document.getElementById('phone').value;
+
+    if (!nameVal || !emailVal || !phoneVal) {
+        alert("Please fill in all information!");
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = 'Processing...';
-    
+
     const bookingData = {
-        name: fullName,
-        email: email,
-        phone: phone,
+        name: nameVal,
+        email: emailVal,
+        phone: phoneVal,
         check_in: checkInDate,
         check_out: checkOutDate,
         room_type: selectedRoomType
@@ -168,49 +170,200 @@ window.thucHienDatPhong = async function() {
         const result = await response.json();
 
         if (response.ok) {
-            // Đổ dữ liệu vào Modal thành công
             const totalAmount = selectedPrice * numberOfNights;
-            document.getElementById('confirmationCode').textContent = result.booking_id; 
-            document.getElementById('modalName').textContent = fullName;
-            document.getElementById('modalEmail').textContent = email;
-            document.getElementById('modalPhone').textContent = phone;
-            document.getElementById('modalRoom').textContent = selectedRoom;
-            document.getElementById('modalPricePerNight').textContent = '$' + selectedPrice;
-            document.getElementById('modalSubtotal').textContent = '$' + totalAmount;
-            document.getElementById('modalTotal').textContent = '$' + totalAmount;
             
-            // Hiện Modal! Lần này nó không thể tắt được nữa
-            document.getElementById('confirmationModal').classList.add('active');
+            // 2. Gói dữ liệu vào SessionStorage để trang Success hiển thị
+            const bookingReceipt = {
+                code: result.booking_id || 'HM' + Date.now(),
+                name: nameVal,
+                room: selectedRoom,
+                checkIn: checkInDate,
+                nights: numberOfNights,
+                total: totalAmount
+            };
+            sessionStorage.setItem('bookingReceipt', JSON.stringify(bookingReceipt));
+
+            // 3. BAY THẲNG SANG TRANG SUCCESS
+            console.log("Booking successful! Redirecting...");
+            window.location.href = 'success.html';
+            
         } else {
-            alert("Lỗi đặt phòng: " + result.message);
+            alert("Error: " + (result.message || "Cannot complete booking"));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Confirm Booking';
         }
     } catch (error) {
-        alert("Không thể kết nối Server!");
-    } finally {
+        console.error("Fetch Error:", error);
+        alert("Server connection failed!");
         submitBtn.disabled = false;
         submitBtn.innerHTML = 'Confirm Booking';
     }
 };
-
 // ================= 5. ĐÓNG MODAL =================
-// Hàm xử lý đóng Modal, reset form và tải lại danh sách phòng
-window.closeModal = function() {
+window.closeModal = function () {
     document.getElementById('confirmationModal').classList.remove('active');
+    
+    // Reset form nhưng phải giữ lại Tên và Email nếu đã đăng nhập
     document.getElementById('bookingForm').reset();
+    checkLoginAndLockForm(); // Gọi lại hàm khóa form để điền lại Tên/Email
+    
     selectedRoom = null;
     selectedPrice = null;
     updateBookingSummary();
-    fetchAndRenderRooms(); // Tải lại phòng để phòng vừa đặt biến mất
+    fetchAndRenderRooms(); 
 }
 
-// Bắt sự kiện cho nút (X) trên đầu Modal
 const closeBtnIcon = document.getElementById('modalClose');
-if(closeBtnIcon) {
+if (closeBtnIcon) {
     closeBtnIcon.addEventListener('click', closeModal);
 }
 
-// ================= 6. KHỞI CHẠY =================
-document.addEventListener('DOMContentLoaded', function() {
+// ================= 6. KIỂM TRA ĐĂNG NHẬP VÀ KHÓA FORM =================
+function checkLoginAndLockForm() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const submitBtn = document.getElementById('submitBtn');
+    const nameEl = document.getElementById('fullName');
+    const emailEl = document.getElementById('email');
+
+    if (!currentUser) {
+        // TRƯỜNG HỢP CHƯA ĐĂNG NHẬP: Khóa nút bấm
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Please Login to Book';
+            submitBtn.style.backgroundColor = '#94a3b8'; // Đổi màu xám báo hiệu bị khóa
+            submitBtn.style.cursor = 'not-allowed';
+            submitBtn.title = "Bạn cần đăng nhập để đặt phòng";
+        }
+    } else {
+        // TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP: Điền sẵn dữ liệu và khóa ô nhập liệu
+        if (nameEl) {
+            nameEl.value = currentUser.ten_kh;
+            nameEl.setAttribute('readonly', true);
+            nameEl.style.backgroundColor = '#e2e8f0'; // Đổi màu nền xám nhẹ để biết là bị khóa
+        }
+        if (emailEl) {
+            emailEl.value = currentUser.email;
+            emailEl.setAttribute('readonly', true);
+            emailEl.style.backgroundColor = '#e2e8f0';
+        }
+        
+        // Trả lại trạng thái bình thường cho nút bấm
+        if (submitBtn) {
+            submitBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                Confirm Booking
+            `;
+            submitBtn.style.backgroundColor = ''; 
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.title = "";
+            // Nút vẫn bị disabled ở đây, nó sẽ được gỡ disabled khi chọn phòng (ở hàm updateBookingSummary)
+        }
+    }
+}
+
+// ================= 7. KHỞI CHẠY =================
+// ================= 7. KHỞI CHẠY =================
+document.addEventListener('DOMContentLoaded', function () {
     initDates();
     fetchAndRenderRooms();
+    checkLoginAndLockForm();
+
+    // --- ĐỔI GIAO DIỆN LOGIN/AVATAR TRÊN NAVBAR ---
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const authSection = document.getElementById('auth-section');
+
+    if (currentUser && authSection) {
+        const userAvatar = currentUser.picture || '../assets/default-avatar.png'; 
+        
+        authSection.innerHTML = `
+            <div class="user-profile-container" style="display: flex; align-items: center; gap: 10px;">
+                <div class="avatar-wrapper" style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 2px solid #f6ac0f;">
+                    <img src="${userAvatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <button onclick="handleLogout()" style="background: none; border: none; cursor: pointer; color: #ef4444;" title="Logout">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        `;
+    }
 });
+
+// --- Cập nhật hàm initDates một chút để đổ dữ liệu vào ô input khi vừa vào trang ---
+function initDates() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const today = new Date();
+    const localToday = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+    // Lấy ngày từ URL (nếu có)
+    checkInDate = urlParams.get('check_in') || localToday;
+    
+    let tmr = new Date(checkInDate);
+    tmr.setDate(tmr.getDate() + 1);
+    let nextDay = new Date(tmr.getTime() - (tmr.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    
+    checkOutDate = urlParams.get('check_out') || nextDay;
+
+    // Đổ giá trị vào 2 ô input modify
+    const inInput = document.getElementById('modify_check_in');
+    const outInput = document.getElementById('modify_check_out');
+    
+    if (inInput && outInput) {
+        inInput.value = checkInDate;
+        outInput.value = checkOutDate;
+        inInput.min = localToday; // Không cho đặt phòng ngày hôm qua
+    }
+
+    // Tính số đêm ban đầu
+    const d1 = new Date(checkInDate);
+    const d2 = new Date(checkOutDate);
+    numberOfNights = Math.max(1, Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)));
+}
+
+// --- HÀM XỬ LÝ KHI BẤM NÚT MODIFY SEARCH ---
+window.handleModifySearch = function() {
+    const newIn = document.getElementById('modify_check_in').value;
+    const newOut = document.getElementById('modify_check_out').value;
+
+    if (!newIn || !newOut) {
+        alert("Please select both dates!");
+        return;
+    }
+
+    if (newIn >= newOut) {
+        alert("Check-out date must be after Check-in date!");
+        return;
+    }
+
+    // 1. Cập nhật lại các biến toàn cục để khi đặt phòng nó gửi đúng ngày mới
+    checkInDate = newIn;
+    checkOutDate = newOut;
+    
+    // 2. Tính toán lại số đêm
+    const d1 = new Date(checkInDate);
+    const d2 = new Date(checkOutDate);
+    numberOfNights = Math.max(1, Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)));
+    
+    console.log(`Updated Search: ${checkInDate} to ${checkOutDate} (${numberOfNights} nights)`);
+    
+    // 3. Tải lại danh sách phòng (để lọc lại theo ngày mới nếu backend hỗ trợ)
+    fetchAndRenderRooms();
+    
+    // 4. Quan trọng: Reset lại phòng đang chọn để tránh nhầm lẫn giá
+    selectedRoom = null;
+    selectedPrice = null;
+    updateBookingSummary();
+    
+    alert("Search details updated!");
+};
+// Thêm hàm logout nếu chưa có trong file script.js này
+window.completePayment = function() {
+    alert("Thanh toán thành công! Hệ thống đang xuất hóa đơn...");
+    window.location.href = 'success.html';
+}

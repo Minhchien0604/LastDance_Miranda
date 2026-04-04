@@ -173,6 +173,22 @@ input {
     background-color: rgba(15, 26, 44, 0.2);
 }
 
+.search-input-date {
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #0f1a2c;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.search-input-date:hover {
+    background: rgba(246, 172, 15, 0.1);
+    border-color: #f6ac0f;
+}
 .btn-modify {
     background-color: #f6ac0f;
     color: #0f1a2c;
