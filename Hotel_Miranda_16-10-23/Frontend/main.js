@@ -180,7 +180,7 @@ function handleLogout() {
 
 function loadMap() {
   // Lưu ý: Bạn cần thay chuỗi này bằng Access Token thật của bạn trên trang chủ Mapbox
-  mapboxgl.accessToken = 'pk.eyJ1Ijoibmd1eWVudGh1aHVvbmcxOTg3IiwiYSI6ImNrb2Y4dXNlNTBqcmQzMXRyZXA3Yng2NDUifQ.VXut_atNnNAiiw5pi5PwDg';
+  
   
   // Khởi tạo bản đồ
   const map = new mapboxgl.Map({
