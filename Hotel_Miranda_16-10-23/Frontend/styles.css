@@ -1040,3 +1040,42 @@ nav {
     bottom: 24px;
   }
 }
+
+/* ==========================================
+   WEATHER WIDGET STYLES
+   ========================================== */
+   .weather-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1); /* Nền hơi trong suốt */
+    border-radius: 20px;
+    color: #fff; /* Hoặc đổi thành màu tối nếu navbar của bạn màu sáng */
+    font-size: 14px;
+    margin-right: 15px;
+}
+
+.weather-widget img {
+    width: 35px;
+    height: 35px;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+}
+
+.weather-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+#weatherTemp {
+    font-weight: bold;
+    color: #f3a446; /* Màu vàng đồng bộ với theme Hotel Miranda */
+    font-size: 15px;
+}
+
+#weatherDesc {
+    font-size: 12px;
+    text-transform: capitalize;
+    color: #e2e8f0;
+}

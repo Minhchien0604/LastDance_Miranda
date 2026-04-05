@@ -391,6 +391,48 @@ function initChatbot() {
   appendMessage("bot", "Xin chào, tôi là Miranda Assistant. Bạn cần hỗ trợ gì về khách sạn?");
 }
 
+// ===================================================================
+// OPENWEATHER API - THỜI TIẾT
+// ===================================================================
+async function loadWeather() {
+  // 1. ĐĂNG KÝ TÀI KHOẢN TẠI openweathermap.org ĐỂ LẤY API KEY VÀ DÁN VÀO ĐÂY
+  const API_KEY = '7f2affdc952ec34474e26d5275817bd8'; 
+  
+  // 2. Tọa độ của khách sạn (Vĩ độ, Kinh độ)
+  const lat = 22.8167;
+  const lon = 104.9833;
+
+  // URL gọi API (units=metric: độ C, lang=vi: Tiếng Việt)
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=vi`;
+
+  try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Không thể kết nối API thời tiết');
+      
+      const data = await response.json();
+
+      // Lấy dữ liệu nhiệt độ và làm tròn
+      const temp = Math.round(data.main.temp); 
+      const desc = data.weather[0].description;
+      
+      // Lấy icon thời tiết chính thức của OpenWeather
+      const iconCode = data.weather[0].icon;
+      const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+
+      // Đẩy dữ liệu lên giao diện
+      const weatherIcon = document.getElementById('weatherIcon');
+      weatherIcon.src = iconUrl;
+      weatherIcon.style.display = 'block';
+      
+      document.getElementById('weatherTemp').textContent = `${temp}°C`;
+      document.getElementById('weatherDesc').textContent = desc;
+
+  } catch (error) {
+      console.error('Lỗi tải thời tiết:', error);
+      document.getElementById('weatherDesc').textContent = 'Lỗi dữ liệu';
+  }
+}
+
 // Chạy hàm này ngay khi trang web vừa load xong
 document.addEventListener("DOMContentLoaded", () => {
   // Khoi tao chatbot truoc de tranh bi anh huong boi loi cac module khac
@@ -398,7 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadRooms();
   loadMenu();
   loadNews();
-
+  loadWeather();
   try {
     loadMap();
   } catch (error) {
