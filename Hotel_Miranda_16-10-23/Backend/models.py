@@ -12,6 +12,7 @@ class KhachHang(db.Model):
     CCCD_Passport = db.Column (db.String(20), nullable = False)
     Email = db.Column (db.String(50), unique = True)
     MatKhau = db.Column(db.String(255))
+    IsAdmin = db.Column(db.Boolean, default=False)
     hoadons = db.relationship('HoaDon', backref='khachhang', lazy=True)
 
 #Bảng nhân viên

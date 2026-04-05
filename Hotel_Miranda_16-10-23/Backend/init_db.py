@@ -1,9 +1,21 @@
 from app import app
-from models import db, Phong, ThucDon, TinTuc  
+from models import db, Phong, ThucDon, TinTuc, KhachHang
+from werkzeug.security import generate_password_hash
 
 with app.app_context():
     db.drop_all()
     db.create_all()
+
+    # ===== TẠO TÀI KHOẢN ADMIN =====
+    admin = KhachHang(
+        TenKH="Admin",
+        Email="admin@hotel.com",
+        MatKhau=generate_password_hash("admin123"),
+        SdtKH="0123456789",
+        CCCD_Passport="ADMIN_001",
+        IsAdmin=True
+    )
+    db.session.add(admin)
 
     phong1 = Phong(
         MaPhong="P01",
@@ -86,4 +98,14 @@ with app.app_context():
     db.session.add(phong2)
     db.session.add(phong3)
     db.session.commit()
-    print("Đã cập nhật dữ liệu Phòng, Thực đơn và Tin tức thành công!")
+    print("✅ Đã cập nhật dữ liệu thành công!")
+    print("=" * 50)
+    print("📝 TÀI KHOẢN ADMIN:")
+    print(f"   Email: admin@hotel.com")
+    print(f"   Mật khẩu: admin123")
+    print("=" * 50)
+    print("✅ Dữ liệu bao gồm:")
+    print("   - 3 Phòng (Standard, Deluxe, Family)")
+    print("   - 6 Món ăn")
+    print("   - 3 Tin tức")
+    print("   - 1 Tài khoản admin")

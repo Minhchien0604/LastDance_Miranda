@@ -324,6 +324,29 @@
         <i class="ri-arrow-up-line"></i>
     </button>
 
+    <button id="chatbot-toggle" class="chatbot-toggle" title="Chat với Hotel Miranda">
+      <i class="ri-customer-service-2-line"></i>
+    </button>
+    
+    <section id="chatbot-panel" class="chatbot-panel" aria-label="Hotel Miranda Chatbot">
+      <div class="chatbot-header">
+        <div>
+          <h4>Miranda Assistant</h4>
+          <p>Tư vấn phòng và dịch vụ</p>
+        </div>
+        <button id="chatbot-close" class="chatbot-close" type="button" aria-label="Dong chatbot">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      <div id="chatbot-messages" class="chatbot-messages"></div>
+      <form id="chatbot-form" class="chatbot-form">
+        <input id="chatbot-input" type="text" maxlength="500" placeholder="Nhập câu hỏi của bạn..." required />
+        <button type="submit" class="chatbot-send">
+          <i class="ri-send-plane-fill"></i>
+        </button>
+      </form>
+    </section>
+    
     <script src="https://unpkg.com/scrollreveal"></script>
     <script src="main.js"></script>
   </body>

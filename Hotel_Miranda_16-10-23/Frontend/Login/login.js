@@ -100,8 +100,22 @@ authForm.addEventListener('submit', async function(e) {
                 
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
                 
+                // Lưu thông tin admin nếu đăng nhập admin
+                if (data.user.is_admin) {
+                    localStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('adminData', JSON.stringify(data.user));
+                } else {
+                    localStorage.removeItem('isAdmin');
+                    localStorage.removeItem('adminData');
+                }
+                
                 setTimeout(() => {
-                    window.location.href = '../index.html';
+                    // Nếu user là admin, chuyển hướng sang trang admin
+                    if (data.user.is_admin) {
+                        window.location.href = '../Admin/index.html';
+                    } else {
+                        window.location.href = '../index.html';
+                    }
                 }, 1500);
 
             } else {

@@ -19,16 +19,38 @@ def reinit_rooms():
             new_rooms = []
             
             # Tạo 5 phòng Standard (101 - 105)
+            # Tạo 5 phòng Standard (101 - 105)
             for i in range(1, 6):
-                new_rooms.append(Phong(MaPhong=f"10{i}", LoaiPhong="Standard", GiaPhong=100, TrangThaiPhong="Trống"))
+                new_rooms.append(Phong(
+                    MaPhong=f"10{i}", 
+                    TenPhong=f"Standard Room P10{i}", 
+                    LoaiPhong="Standard", 
+                    DonGia=100, 
+                    TrangThaiPhong="Trống",
+                    HinhAnh="assets/room-1.jpg" # Thêm đường dẫn ảnh
+                ))
             
             # Tạo 5 phòng Deluxe (201 - 205)
             for i in range(1, 6):
-                new_rooms.append(Phong(MaPhong=f"20{i}", LoaiPhong="Deluxe", GiaPhong=200, TrangThaiPhong="Trống"))
+                new_rooms.append(Phong(
+                    MaPhong=f"20{i}", 
+                    TenPhong=f"Deluxe Room P20{i}", 
+                    LoaiPhong="Deluxe", 
+                    DonGia=200, 
+                    TrangThaiPhong="Trống",
+                    HinhAnh="assets/room-2.jpg" # Thêm đường dẫn ảnh
+                ))
                 
             # Tạo 5 phòng Family (301 - 305)
             for i in range(1, 6):
-                new_rooms.append(Phong(MaPhong=f"30{i}", LoaiPhong="Family", GiaPhong=350, TrangThaiPhong="Trống"))
+                new_rooms.append(Phong(
+                    MaPhong=f"30{i}", 
+                    TenPhong=f"Family Room P30{i}", 
+                    LoaiPhong="Family", 
+                    DonGia=350, 
+                    TrangThaiPhong="Trống",
+                    HinhAnh="assets/room-3.jpg" # Thêm đường dẫn ảnh
+                ))
 
             db.session.add_all(new_rooms)
             db.session.commit()

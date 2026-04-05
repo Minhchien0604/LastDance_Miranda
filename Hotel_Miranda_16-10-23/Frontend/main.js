@@ -179,23 +179,51 @@ function handleLogout() {
 }
 
 function loadMap() {
-  // Lưu ý: Bạn cần thay chuỗi này bằng Access Token thật của bạn trên trang chủ Mapbox
+  // Thay bằng Access Token của bạn
   
-  
-  // Khởi tạo bản đồ
+
+  const hotelCoords = [104.9833, 22.8167]; // Tọa độ Hotel Miranda
+
+  // 1. Khởi tạo bản đồ
   const map = new mapboxgl.Map({
-      container: 'map', // Tìm thẻ div có id="map"
-      style: 'mapbox://styles/mapbox/streets-v12', // Kiểu giao diện bản đồ
-      center: [104.9833, 22.8167], // Tọa độ (Kinh độ, Vĩ độ) - Tôi đang đặt một vị trí đẹp làm mẫu
-      zoom: 14 // Độ thu phóng
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: hotelCoords,
+      zoom: 14
   });
 
-  // Cắm một cái ghim (Marker) màu đỏ vào vị trí khách sạn
-  const marker = new mapboxgl.Marker({ color: '#f3a446' }) // Màu cam vàng cho hợp tone web
-      .setLngLat([104.9833, 22.8167])
+  // 2. Thêm Marker cho khách sạn
+  new mapboxgl.Marker({ color: '#f3a446' })
+      .setLngLat(hotelCoords)
       .setPopup(new mapboxgl.Popup({ offset: 25 })
-      .setHTML('<h3>Hotel Miranda</h3><p>Chào mừng bạn đến với chúng tôi!</p>'))
+      .setHTML('<h3>Hotel Miranda</h3><p>Đích đến của bạn</p>'))
       .addTo(map);
+
+  // 3. Tích hợp bộ chỉ đường (Directions)
+  const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric', // Sử dụng đơn vị mét/km
+      profile: 'mapbox/driving', // Chế độ mặc định: lái xe (có thể đổi thành 'mapbox/walking', 'mapbox/cycling')
+      alternatives: true,
+      placeholderOrigin: 'Nhập điểm khởi hành hoặc chọn trên bản đồ',
+      placeholderDestination: 'Hotel Miranda',
+      interactive: false // Khóa điểm đến là khách sạn, người dùng chỉ nhập điểm đi
+  });
+
+  // Thêm bảng điều khiển chỉ đường vào góc trái trên
+  map.addControl(directions, 'top-left');
+
+  // Tự động thiết lập điểm đến cố định là Khách sạn
+  map.on('load', () => {
+      directions.setDestination(hotelCoords);
+  });
+
+  // 4. Thêm nút định vị GPS người dùng ở góc phải dưới
+  map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true
+  }), 'bottom-right');
 }
 
 const bookingForm = document.querySelector(".booking__container form");
@@ -268,10 +296,112 @@ backToTopBtn.addEventListener("click", () => {
         behavior: "smooth"
     });
 });
+// CHATBOT
+//chatbotjs
+
+function initChatbot() {
+  const toggleBtn = document.getElementById("chatbot-toggle");
+  const panel = document.getElementById("chatbot-panel");
+  const closeBtn = document.getElementById("chatbot-close");
+  const form = document.getElementById("chatbot-form");
+  const input = document.getElementById("chatbot-input");
+  const messages = document.getElementById("chatbot-messages");
+
+  if (!toggleBtn || !panel || !closeBtn || !form || !input || !messages) {
+    return;
+  }
+
+  const endpoints = [
+    "http://127.0.0.1:5000/api/chat",
+    "http://127.0.0.1:5000/api/chatbot",
+  ];
+
+  const appendMessage = (role, text, extraClass = "") => {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-msg ${role} ${extraClass}`.trim();
+    bubble.textContent = text;
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+  };
+
+  const askApi = async (message) => {
+    let lastError = null;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || data.message || "API error");
+        }
+
+        return data.reply || data.message || "Xin lỗi, tôi chưa có câu trả lời.";
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error("Không thể kết nối được chatbot API.");
+  };
+
+  toggleBtn.addEventListener("click", () => {
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      input.focus();
+    }
+  });
+
+  closeBtn.addEventListener("click", () => {
+    panel.classList.remove("open");
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = input.value.trim();
+
+    if (!message) {
+      return;
+    }
+
+    appendMessage("user", message);
+    input.value = "";
+    input.disabled = true;
+
+    const typing = appendMessage("bot", "Đang trả lời...", "typing");
+
+    try {
+      const reply = await askApi(message);
+      typing.remove();
+      appendMessage("bot", reply);
+    } catch (error) {
+      typing.remove();
+      appendMessage("bot", `Loi: ${error.message}`);
+    } finally {
+      input.disabled = false;
+      input.focus();
+    }
+  });
+
+  appendMessage("bot", "Xin chào, tôi là Miranda Assistant. Bạn cần hỗ trợ gì về khách sạn?");
+}
+
 // Chạy hàm này ngay khi trang web vừa load xong
 document.addEventListener("DOMContentLoaded", () => {
+  // Khoi tao chatbot truoc de tranh bi anh huong boi loi cac module khac
+  initChatbot();
   loadRooms();
   loadMenu();
   loadNews();
-  loadMap();
+
+  try {
+    loadMap();
+  } catch (error) {
+    console.error("Mapbox loi, bo qua map de cac tinh nang khac van chay:", error);
+  }
 });
